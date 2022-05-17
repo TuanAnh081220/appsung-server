@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# deta
+.deta/
+
+# file
+advertising.mp3
+getcaption.jpg
