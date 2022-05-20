@@ -84,9 +84,10 @@ def train():
 def get_pretrained_model():
     # if not os.path.exists('local_trained_model.h5'):
     #     train()
-    model = get_model()
+    model_ = get_model()
+    model_.load_weights('pretrained_weights.h5')
     # model = model.from_pretrained('local_trained_model.h5')
-    return model
+    return model_
 
 
 model = get_pretrained_model()
