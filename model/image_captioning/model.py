@@ -9,10 +9,6 @@ from transformers import TFVisionEncoderDecoderModel, AutoFeatureExtractor, Auto
 from model.image_captioning.data import get_dataloader
 
 
-feature_extractor = AutoFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k")
-tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
-
-
 class CustomNonPaddingTokenLoss(tf.keras.losses.Loss):
     def __init__(self, name='custom_loss'):
         super().__init__(name=name)
@@ -85,23 +81,28 @@ def train():
     model.save('local_trained_model.h5')
 
 
-def captions_predict(path_image, model, _feature_extractor, _tokenizer):
-    try:
-        img = tf.keras.preprocessing.image.load_img(path_image)
-        img_feature = _feature_extractor(img,return_tensors='np')['pixel_values']
-    except:
-        img = cv2.imread(path_image)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = Image.fromarray(img)
-        img_feature = _feature_extractor(img,return_tensors='np')['pixel_values']
-    result = model.generate(img_feature, max_length=30, num_beams=5, bos_token_id=0,eos_token_id=2,pad_token_id=1).numpy().tolist()[0]
-    result = _tokenizer.decode(result,skip_special_tokens =True)
-    return result.replace('@@ ','').replace('_',' ')
-
-
 def get_pretrained_model():
     # if not os.path.exists('local_trained_model.h5'):
     #     train()
     model = get_model()
     # model = model.from_pretrained('local_trained_model.h5')
     return model
+
+
+model = get_pretrained_model()
+feature_extractor = AutoFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k")
+tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
+
+
+def captions_predict(path_image):
+    try:
+        img = tf.keras.preprocessing.image.load_img(path_image)
+        img_feature = feature_extractor(img, return_tensors='np')['pixel_values']
+    except:
+        img = cv2.imread(path_image)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(img)
+        img_feature = feature_extractor(img, return_tensors='np')['pixel_values']
+    result = model.generate(img_feature, max_length=30, num_beams=5, bos_token_id=0,eos_token_id=2,pad_token_id=1).numpy().tolist()[0]
+    result = tokenizer.decode(result, skip_special_tokens =True)
+    return result.replace('@@ ','').replace('_',' ')

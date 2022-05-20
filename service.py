@@ -2,13 +2,12 @@ import google.cloud.texttospeech as tts
 from google.oauth2 import service_account
 import json
 
-from model.image_captioning.model import get_pretrained_model, captions_predict, feature_extractor, tokenizer
+from model.image_captioning.model import captions_predict
 
 
 def get_caption(file):
     # do something here with model
-    model = get_pretrained_model()
-    caption = captions_predict(file, model, feature_extractor, tokenizer)
+    caption = captions_predict(file)
     return caption
 
 
