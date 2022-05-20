@@ -27,7 +27,7 @@ def download_pretrained():
     model = TFVisionEncoderDecoderModel.from_encoder_decoder_pretrained(
         'google/vit-base-patch16-224-in21k', 'vinai/phobert-base'
     )
-    model.save_pretrained('pretrained.h5')
+    model.save_pretrained('./pretrained.h5')
 
 
 def get_model():
