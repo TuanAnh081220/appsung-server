@@ -135,4 +135,10 @@ dmypy.json
 advertising.mp3
 getcaption.jpg
 
+.idea
+/UIT-ViIC/
+/pretrained.h5/
+/vncorenlp/
+/model_checkpoints/
+
 .idea/
