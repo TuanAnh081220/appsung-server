@@ -67,7 +67,7 @@ def train():
     model.compile(
         optimizer=adam, loss=loss
     )
-    file_path = '/model_checkpoints/epoch_{epoch:01d}.h5'
+    file_path = './model_checkpoints/epoch_{epoch:01d}.h5'
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=file_path,
                                                                        save_weights_only=True)
     model.fit(train_loader,
