@@ -4,9 +4,13 @@ import numpy as np
 import tensorflow as tf
 
 from PIL import Image
-from transformers import TFVisionEncoderDecoderModel
+from transformers import TFVisionEncoderDecoderModel, AutoFeatureExtractor, AutoTokenizer
 
 from model.image_captioning.data import get_dataloader
+
+
+feature_extractor = AutoFeatureExtractor.from_pretrained("google/vit-base-patch16-224-in21k")
+tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
 
 
 class CustomNonPaddingTokenLoss(tf.keras.losses.Loss):
@@ -31,14 +35,17 @@ def download_pretrained():
 
 
 def get_model():
-    if not os.path.exists('pretrained.h5'):
-        download_pretrained()
-    input_ids_text = tf.keras.layers.Input(shape=(None,), name='input_ids_text', dtype='int32')
-    input_image = tf.keras.layers.Input(shape=(3,224,224), name='input_image', dtype='float64')
-    model = TFVisionEncoderDecoderModel.from_pretrained('pretrained.h5')
-    inner = model(input_image, input_ids_text)[0]
-    output = tf.keras.layers.Softmax()(inner)
-    model = tf.keras.Model([input_ids_text, input_image], output)
+    # if not os.path.exists('./pretrained.h5'):
+    #     download_pretrained()
+    # model = TFVisionEncoderDecoderModel.from_pretrained('./pretrained.h5')
+    # input_ids_text = tf.keras.layers.Input(shape=(None,), name='input_ids_text', dtype='int32')
+    # input_image = tf.keras.layers.Input(shape=(3, 224, 224), name='input_image', dtype='float64')
+    # inner = model(input_image, input_ids_text)[0]
+    # output = tf.keras.layers.Softmax()(inner)
+    # model = tf.keras.Model([input_ids_text, input_image], output)
+    model = TFVisionEncoderDecoderModel.from_encoder_decoder_pretrained(
+        'google/vit-base-patch16-224-in21k', 'vinai/phobert-base'
+    )
     return model
 
 
@@ -75,36 +82,26 @@ def train():
               epochs=2,
               callbacks=[model_checkpoint_callback, tf.keras.callbacks.LearningRateScheduler(scheduler)],
               initial_epoch=0)
-    model.save_pretrained('local_trained_model.h5')
+    model.save('local_trained_model.h5')
 
 
-def captions_predict(path_image, model, max_length):
-    dataloader = get_dataloader()
+def captions_predict(path_image, model, _feature_extractor, _tokenizer):
     try:
-        img =  tf.keras.preprocessing.image.load_img(path_image)
-        img_feature = dataloader.feature_extractor(img,return_tensors='np')['pixel_values']
+        img = tf.keras.preprocessing.image.load_img(path_image)
+        img_feature = _feature_extractor(img,return_tensors='np')['pixel_values']
     except:
         img = cv2.imread(path_image)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
-        img_feature = dataloader.feature_extractor(img,return_tensors='np')['pixel_values']
-    input_mask = np.array([[1]+[0]*(max_length-1)])
-    input_ids = np.array([[0]+[1]*(max_length-1)])
-    index = 1
-    while True:
-        word_next = tf.math.argmax(model.predict([input_ids,input_mask,img_feature]),-1)[0].numpy()
-        input_ids[0][index] = word_next
-        input_mask[0][index] = 1
-        index = index + 1
-        if word_next == 2 or index == max_length:
-          break
-    result = ' '.join(dataloader.tokenizer.convert_ids_to_tokens(input_ids[0],skip_special_tokens=True))
+        img_feature = _feature_extractor(img,return_tensors='np')['pixel_values']
+    result = model.generate(img_feature, max_length=30, num_beams=5, bos_token_id=0,eos_token_id=2,pad_token_id=1).numpy().tolist()[0]
+    result = _tokenizer.decode(result,skip_special_tokens =True)
     return result.replace('@@ ','').replace('_',' ')
 
 
 def get_pretrained_model():
-    if not os.path.exists('local_trained_model.h5'):
-        train()
+    # if not os.path.exists('local_trained_model.h5'):
+    #     train()
     model = get_model()
-    model = model.from_pretrained('local_trained_model.h5')
+    # model = model.from_pretrained('local_trained_model.h5')
     return model
