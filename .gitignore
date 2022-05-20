@@ -140,3 +140,5 @@ getcaption.jpg
 /pretrained.h5/
 /vncorenlp/
 /model_checkpoints/
+
+.idea/
