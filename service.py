@@ -1,9 +1,12 @@
 import google.cloud.texttospeech as tts
 
+from model.image_captioning.model import get_pretrained_model, captions_predict
+
 
 def get_caption(file):
     # do something here with model
-    caption = "this is my caption"
+    model = get_pretrained_model()
+    caption = captions_predict(file, model, max_length=50)
     return caption
 
 
