@@ -142,3 +142,5 @@ getcaption.jpg
 /model_checkpoints/
 
 .idea/
+
+pretrained_weights.h5

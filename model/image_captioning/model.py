@@ -27,7 +27,7 @@ def download_pretrained():
     model = TFVisionEncoderDecoderModel.from_encoder_decoder_pretrained(
         'google/vit-base-patch16-224-in21k', 'vinai/phobert-base'
     )
-    model.save_pretrained('pretrained.h5')
+    model.save_pretrained('./pretrained.h5')
 
 
 def get_model():
@@ -84,9 +84,10 @@ def train():
 def get_pretrained_model():
     # if not os.path.exists('local_trained_model.h5'):
     #     train()
-    model = get_model()
+    model_ = get_model()
+    model_.load_weights('pretrained_weights.h5')
     # model = model.from_pretrained('local_trained_model.h5')
-    return model
+    return model_
 
 
 model = get_pretrained_model()
