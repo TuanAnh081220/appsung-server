@@ -1,13 +1,21 @@
 import google.cloud.texttospeech as tts
 from google.oauth2 import service_account
 import json
+import random
 
-from model.image_captioning.model import captions_predict
+# from model.image_captioning.model import captions_predict
+
+list_caption = [
+    "Điện thoại",
+    "Máy tính",
+]
 
 
 def get_caption(file):
     # do something here with model
-    caption = captions_predict(file)
+    # caption = captions_predict(file)
+    random_index = random.randint(0, len(list_caption))
+    caption = list_caption[random_index]
     return caption
 
 
