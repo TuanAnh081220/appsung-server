@@ -6,15 +6,16 @@ import random
 # from model.image_captioning.model import captions_predict
 
 list_caption = [
-    "Điện thoại",
-    "Máy tính",
+    "Một người đàn ông đi bộ",
+    "2 chiếc ô tô",
+    "Người áo đen đang chạy"
 ]
 
 
 def get_caption(file):
     # do something here with model
     # caption = captions_predict(file)
-    random_index = random.randint(0, len(list_caption))
+    random_index = random.randint(0, len(list_caption) - 1)
     caption = list_caption[random_index]
     return caption
 
