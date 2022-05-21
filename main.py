@@ -14,9 +14,11 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
 @app.get("/hello")
 async def pong():
     return {"message": "hello everyone"}
+
 
 @app.post("/caption/get")
 def caption(file: str):
@@ -28,8 +30,10 @@ def caption(file: str):
     caption = service.get_caption(filename)
     return {"caption": caption}
 
+
 class SayCaptionModel(BaseModel):
     caption: str
+
 
 @app.post("/caption/audio")
 def predict_caption(caption: str):
